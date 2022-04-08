@@ -1,30 +1,38 @@
 import socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-
-
-def login(username):
+def handShake(username):
 	"""
 	returns problem
-	returns None if no problem
+	returns whether name is in use
 	"""
 	message = "HELLO-FROM {0}\n".format(username)
 	string_bytes = message.encode("utf-8")
 	sock.sendall(string_bytes)
-	
-	"HELLO <name>\n"
 	serverResponse = sock.recv(4096)
 	print(serverResponse)
-	if not serverResponse:
-		return "Socket is closed";
-	elif serverResponse=="HELLO {0}\n".format(username).encode("utf-8"):
-		return ""
+	if serverResponse=="HELLO {0}\n".format(username).encode("utf-8"):
+		return False
 	elif serverResponse=="IN-USE\n".encode("utf-8"):
-		return "User name taken"
-	else:
-		return "Invalid Server Response"
+		return True
 
-host_port = ("143.47.184.219", 5378) #ip and port was in canvas discussion
-sock.connect(host_port)
 
-print(login("joe"))
+
+
+def main():
+	host_port = ("143.47.184.219", 5378) #ip and port was in canvas discussion
+	sock.connect(host_port)
+	
+	print("<Message explaining stuff>")
+	name = input("Name:")
+	nameInUse = handShake(name)
+	while nameInUse:
+		input("Someone already has that name:(\nOther name:")
+		nameInUse = handShake(name)
+	
+	quit=False
+	while not quit:
+		command = input()
+		if command=="!quit":quit = True
+	
+main()
