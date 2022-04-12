@@ -1,48 +1,72 @@
 import socket
 import threading
+import re
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
 
 def handShake(username):
 	"""
-	returns problem
+	TODO: username can only have numbers and letters regex maybe?
 	returns whether name is in use
 	"""
 	message = "HELLO-FROM {0}\n".format(username)
 	string_bytes = message.encode("utf-8")
 	sock.sendall(string_bytes)
-	serverResponse = sock.recv(4096)
-	print(serverResponse)
-	if serverResponse=="HELLO {0}\n".format(username).encode("utf-8"): #server messages come encoded in utf-8
+	
+	serverResponse = sock.recv(4096).decode('utf-8') #if we decode message at the start then we don't have to encode all the strings we are comparing it with
+	if serverResponse=="HELLO {0}\n".format(username):
 		return False
-	elif serverResponse=="IN-USE\n".encode("utf-8"):
+	elif serverResponse=="IN-USE\n":
 		return True
 
-def who():
-	pass
+def sendWho():
+	message = "WHO\n"
+	string_bytes = message.encode("utf-8")
+	sock.sendall(string_bytes)
 
-def message(command):
-	pass
+def sendMessage(command):
+	command = command[1:].split(' ',1) #splits command at the 1st space
+	command.append(' ')			   #if there is not message command[1] becomes ' ' creating a bad request body; otherwise this does basically nothing
+	message = f"SEND {command[0]} {command[1]}\n"
+	print("Message=",message)
+	string_bytes = message.encode("utf-8")
+	sock.sendall(string_bytes)
+
+def listen():
+	while True:
+		#try:
+			serverResponse = sock.recv(4096).decode("utf-8")
+			if not serverResponse:
+				return
+			responseHead = serverResponse.split()[0]
+			if responseHead == "WHO-OK":
+				print("From Listen:",serverResponse) #TODO: diffrent stuff
+			else:
+				print("From Listen:",serverResponse) #TODO: diffrent stuff
+		#except OSERROR:
+			#pass
 
 
 def main():
+	
 	host_port = ("143.47.184.219", 5378) #ip and port was in canvas discussion
 	sock.connect(host_port)
 	
 	print("<Message explaining stuff>")
-	name = input("Name:")
-	nameInUse = handShake(name)
+	hold_stuff = input("Name:")
+	nameInUse = handShake(hold_stuff)
 	while nameInUse:
-		input("Someone already has that name:(\nOther name:")
+		name = input("Someone already has that name:(\nOther name:")
 		nameInUse = handShake(name)
 
-	# TODO:Start thread here that listens for messages
-	# from other users, and displays them
-	
-	quit=False
-	while not quit:
+	listenThread = threading.Thread(target=listen,daemon=True) #daemon makes it stop when main stops
+	listenThread.start()
+	finnish = False
+	while not finnish:
 		command = input()
-		if   command=="!quit": quit = True
-		elif command=="!who":  who() #temporary, who function is empty
-		elif command[0]=="@":  message(command) #temporary 
+		if   command=="!quit": finnish=True
+		elif command=="!who":  sendWho() 
+		elif command[0]=="@": sendMessage(command)
 		else: print("Invalid Command")
+
 main()
