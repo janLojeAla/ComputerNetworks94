@@ -15,9 +15,9 @@ def handShake(username):
 	
 	serverResponse = sock.recv(4096).decode('utf-8') #if we decode message at the start then we don't have to encode all the strings we are comparing it with
 	if serverResponse=="HELLO {0}\n".format(username):
-		return False
-	elif serverResponse=="IN-USE\n":
 		return True
+	elif serverResponse=="IN-USE\n":
+		return False
 
 def sendWho():
 	message = "WHO\n"
@@ -26,7 +26,7 @@ def sendWho():
 
 def sendMessage(command):
 	command = command[1:].split(' ',1) #splits command at the 1st space
-	command.append(' ')			   #if there is not message command[1] becomes ' ' creating a bad request body; otherwise this does basically nothing
+	command.append(' ')			      #if there is not message command[1] becomes ' ' creating a bad request body; otherwise this does basically nothing
 	message = f"SEND {command[0]} {command[1]}\n"
 	print("Message=",message)
 	string_bytes = message.encode("utf-8")
@@ -54,13 +54,14 @@ def main():
 	
 	print("<Message explaining stuff>")
 	hold_stuff = input("Name:")
-	nameInUse = handShake(hold_stuff)
-	while nameInUse:
+	goodName = handShake(hold_stuff)
+	while not goodName:   
 		name = input("Someone already has that name:(\nOther name:")
-		nameInUse = handShake(name)
+		goodName = handShake(name)
 
 	listenThread = threading.Thread(target=listen,daemon=True) #daemon makes it stop when main stops
 	listenThread.start()
+
 	finnish = False
 	while not finnish:
 		command = input()
