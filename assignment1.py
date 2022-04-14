@@ -26,11 +26,14 @@ def sendWho():
 
 def sendMessage(command):
 	command = command[1:].split(' ',1) #splits command at the 1st space
-	command.append(' ')			      #if there is not message command[1] becomes ' ' creating a bad request body; otherwise this does basically nothing
-	message = f"SEND {command[0]} {command[1]}\n"
-	print("Message=",message)
-	string_bytes = message.encode("utf-8")
-	sock.sendall(string_bytes)
+	#command.append('EMPTY MESSAGE')			   #if there is not message command[1] becomes ' ' creating a bad request body; otherwise this does basically nothing
+	if len(command)<2:   #if no message after name
+		print("Message cannot be empty")
+	else:
+		message = f"SEND {command[0]} {command[1]}\n"
+		print("Message=",message)
+		string_bytes = message.encode("utf-8")
+		sock.sendall(string_bytes)
 
 def listen():
 	while True:
@@ -65,7 +68,8 @@ def main():
 	finnish = False
 	while not finnish:
 		command = input()
-		if   command=="!quit": finnish=True
+		if command="": pass
+		elif   command=="!quit": finnish=True
 		elif command=="!who":  sendWho() 
 		elif command[0]=="@": sendMessage(command)
 		else: print("Invalid Command")
