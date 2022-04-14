@@ -68,7 +68,7 @@ def main():
 	finnish = False
 	while not finnish:
 		command = input()
-		if command="": pass
+		if command=="": pass
 		elif   command=="!quit": finnish=True
 		elif command=="!who":  sendWho() 
 		elif command[0]=="@": sendMessage(command)
