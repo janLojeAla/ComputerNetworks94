@@ -5,10 +5,7 @@ import threading
 
 
 def handShake(username):
-	"""
-	TODO: username can only have numbers and letters regex maybe?
-	returns whether name is in use
-	"""
+
 	sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	host_port = ("143.47.184.219", 5378) #ip and port was in canvas discussion
 	sock.connect(host_port)
@@ -41,7 +38,6 @@ def sendMessage(command,sock):
 		print("Message cannot be empty")
 	else:
 		message = f"SEND {command[0]} {command[1]}\n"
-		print("Message=",message)
 		string_bytes = message.encode("utf-8")
 		sock.sendall(string_bytes)
 
@@ -60,7 +56,7 @@ def listen(sock):
         elif responseHead == "SEND-OK":
             print("Message Sent")
         elif responseHead == "UNKNOWN":
-            print("Username currently unavailable", serverResponse)
+            print("Username currently unavailable")
         elif responseHead == "BUSY":
             print(serverResponse)
         elif responseHead == "BAD-RQST-HDR":
