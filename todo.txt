@@ -1,0 +1,11 @@
+listen:
+  send-ok
+  who-ok
+  delivery
+  unknown
+login:
+  busy
+  bad username
+message:
+  not crash when message empty
+ 
