@@ -22,8 +22,12 @@ def handShake(username):
 	else:
 		sock.close()
 	if serverResponse=="IN-USE\n":
-		print("That name is taken:")
-		return None
+		print("Someone already has that name:(\n")
+	elif serverResponse=="BUSY\n":
+		print("Ther sever is full, Probably a D-dos attack or something >:[")
+	else:
+		print("Just type a normal name. Y'know with LETTERS")
+	return None
 
 def sendWho(sock):
 	message = "WHO\n"
@@ -63,7 +67,7 @@ def main():
 	hold_stuff = input("Name:")
 	sock = handShake(hold_stuff)
 	while not sock:   
-		name = input("Someone already has that name:(\nOther name:")
+		name = input("Other name:")
 		sock = handShake(name)
 
 	listenThread = threading.Thread(target=listen,args=(sock,),daemon=True) #daemon makes it stop when main stops
