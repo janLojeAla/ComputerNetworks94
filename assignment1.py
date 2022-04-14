@@ -47,18 +47,22 @@ def sendMessage(command,sock):
 
 def listen(sock):
 	while True:
-		#try:
-			serverResponse = sock.recv(4096).decode("utf-8")
-			if not serverResponse:
-				return
-			responseHead = serverResponse.split()[0]
-			if responseHead == "WHO-OK":
-				print("From Listen:",serverResponse) #TODO: diffrent stuff
-			else:
-				print("From Listen:",serverResponse) #TODO: diffrent stuff
-		#except OSERROR:
-			#pass
-
+        serverResponse = sock.recv(4096).decode("utf-8")
+        if not serverResponse:
+            return responseHead = serverResponse.split()[0]
+        if responseHead == "WHO-OK":
+            print(serverResponse)
+        elif responseHead == "SEND-OK":
+            print(serverResponse)
+        elif responseHead == "DELIVERY":
+            print(serverResponse)
+        elif responseHead == "UNKNOWN":
+            print(serverResponse)
+        elif responseHead == "BUSY":
+            print(serverResponse)
+        elif responseHead == "BAD-RQST-HDR":
+            print(serverResponse)
+        elif responseHead == "BAD-RQST-BODY":
 
 def main():
 	
