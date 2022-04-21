@@ -1,11 +1,15 @@
-listen:
-  send-ok
-  who-ok
-  delivery
-  unknown
-login:
-  busy
-  bad username
-message:
-  not crash when message empty
- 
+1. Support full appendix A protocol 
+  HELLO-FROM <name>\n           Client
+  HELLO <name>\n
+  WHO\n                         Client
+  WHO-OK <name1>,...,<namen>\n
+  SEND <user> <msg>\n           Client
+  SEND-OK\n
+  UNKNOWN\n
+  DELIVERY <user> <msg>\n
+  IN-USE\n
+  BUSY\n
+  BAD-RQST-HDR\n
+  BAD-RQST-BODY\n
+2. Support at least 64 simultaneous clients.
+  create threads and stuff
