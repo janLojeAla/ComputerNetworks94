@@ -4,14 +4,14 @@ import threading
 def handShake(username):
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    host_port = ("143.47.184.219", 5378)  # ip and port was in canvas discussion
+    host_port = ("143.47.184.219", 5378)
     sock.connect(host_port)
 
     message = "HELLO-FROM {0}\n".format(username)
     string_bytes = message.encode("utf-8")
     sock.sendall(string_bytes)
     serverResponse = sock.recv(4096).decode(
-        'utf-8')  # if we decode message at the start then we don't have to encode all the strings we are comparing it with
+        'utf-8')
     if serverResponse == "HELLO {0}\n".format(username):
         print("Login successful")
         return sock
@@ -44,7 +44,11 @@ def sendMessage(command, sock):
 
 def listen(sock):
     while True:
-        serverResponse = sock.recv(4096).decode("utf-8")
+        serverResponse = sock.recv(16).decode("utf-8")
+
+        while serverResponse[-1] != "\n" :
+            serverResponse += sock.recv(16).decode("utf-8")
+
         if not serverResponse:
             return
         responseHead = serverResponse.split()[0]
@@ -91,4 +95,3 @@ def main():
 
 
 main()
-
