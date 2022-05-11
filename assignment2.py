@@ -13,14 +13,22 @@ def handshake(sock):
     while clientMessage[-1] != "\n" :
         clientMessage += sock.recv(16).decode("utf-8")
     clientMessage = clientMessage.split(' ')
-    if len(clientMessage)==2:
-        if clientMessage[0]=="HELLO-FROM":
-            #send hi
-            clients += {clientMessage[1],sock}
-        else
-            #send bad header
-    elif
-    #send bad message
+    
+    if not clientMessage:
+        #send bad header
+        return
+    if clientMessage[0]!="HELLO-FROM":
+        #send bad header
+        return
+    if len(clientMessage)!=2:
+        #send bad-body
+        return
+    #send hi
+    clients += {clientMessage[1],sock}
+    listen()
+
+def listen()
+    pass
 
 while True:
     (tempsock, address) = sock.accept()
