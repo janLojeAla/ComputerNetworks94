@@ -1,15 +1,6 @@
-1. Support full appendix A protocol 
-  HELLO-FROM <name>\n           Client
-  HELLO <name>\n
-  WHO\n                         Client
-  WHO-OK <name1>,...,<namen>\n
-  SEND <user> <msg>\n           Client
-  SEND-OK\n
-  UNKNOWN\n
-  DELIVERY <user> <msg>\n
-  IN-USE\n
-  BUSY\n
-  BAD-RQST-HDR\n
-  BAD-RQST-BODY\n
-2. Support at least 64 simultaneous clients.
-  create threads and stuff
+
+
+1. send UNKNOWN\n if there the user isn't logged in
+
+2. Support at least 64 simultaneous clients. 
+  (I'm not sure why that would be a problem, but we can check try to test it)
