@@ -8,7 +8,7 @@ sock.listen()
 
 clients={}
 
-def handshake(sock):    #TODO:check for repeated name
+def handshake(sock):
     global clients
     clientMessage = sock.recv(16).decode("utf-8")
     while clientMessage[-1] != "\n" :
@@ -16,18 +16,23 @@ def handshake(sock):    #TODO:check for repeated name
     clientMessage = clientMessage.split(' ')
     
     if not clientMessage:
-        #send bad header
+        sock.sendall("BAD-RQST-HDR\n".encode())
         return
     if clientMessage[0]!="HELLO-FROM":
-        #send bad header
+        sock.sendall("BAD-RQST-HDR\n".encode())
         return
     if len(clientMessage)!=2:
-        #send bad-body
+        sock.sendall("BAD-RQST-BODY\n".encode())
         return
-    name = clientMessage[1]  #technically the name variable holds name and line change but like meh
-    sock.sendall(f"HELLO {name}".encode())
-    clients[clientMessage[1]]=sock
-    listen(sock,name[:-1])
+    
+    name = clientMessage[1][:-1]
+    if name in clients:
+        sock.sendall("IN-USE\n".encode())
+        return
+
+    sock.sendall(f"HELLO {name}\n".encode())
+    clients[name]=sock
+    listen(sock,name)
     del clients[name]
 
 
@@ -43,16 +48,16 @@ def listen(sock,user):
             return
 
         print("clientRequest",clientRequest)
-        responseHead = clientRequest.split()[0] #split on white space removes "\n"
-        if responseHead == "WHO":
+        responseHead = clientRequest.split(' ')[0]
+        if responseHead == "WHO\n":
             sendWho(sock)
         elif responseHead == "SEND":
             if sendMsg(clientRequest,user):
-                pass #send OK
+                sock.sendall("SEND-OK\n".encode())
             else:
-                pass #bad rqst body
+                sock.sendall("BAD-RQST-BODY\n".encode())
         else:
-            pass #send bad header
+            sock.sendall("BAD-RQST-HDR\n".encode())
 
 def sendMsg(clientRequest,sender):
     global clients
@@ -60,12 +65,13 @@ def sendMsg(clientRequest,sender):
     if len(clientRequest)!=3:
         return False
     receiverName = clientRequest[1]
-    if not (receiverName+'\n' in clients):
+    if not (receiverName in clients):
         return False
 
     msg = f"DELIVERY {sender} {clientRequest[2]}"
-    sock = clients[receiverName+'\n']
+    sock = clients[receiverName]
     sock.sendall(msg.encode())
+    return True
     
 
 
@@ -73,8 +79,8 @@ def sendWho(sock):
     global clients
     msg=""
     for name in clients:
-        msg += name[:-1]+","  #-1 to remove \n
-    msg = msg[:-1]
+        msg += name+","
+    msg = msg[:-1]          #remove last comma
     sock.sendall(f"WHO-OK {msg}\n".encode())
 
 
@@ -82,6 +88,8 @@ def sendWho(sock):
 print("server started\n")
 while True:
     (tempsock, address) = sock.accept()
+    if len(clients)>=64:
+        tempsock.sendall("BUSY\n".encode())
+        tempsock.close()
     clientThread = threading.Thread(target=handshake, args=(tempsock,), daemon=True)
     clientThread.start()
-    
