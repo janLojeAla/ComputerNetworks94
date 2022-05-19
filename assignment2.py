@@ -8,7 +8,7 @@ sock.listen()
 
 clients={}
 
-def handshake(sock):    #TODO:check for repeated name name
+def handshake(sock):    #TODO:check for repeated name
     global clients
     clientMessage = sock.recv(16).decode("utf-8")
     while clientMessage[-1] != "\n" :
@@ -27,27 +27,47 @@ def handshake(sock):    #TODO:check for repeated name name
     name = clientMessage[1]  #technically the name variable holds name and line change but like meh
     sock.sendall(f"HELLO {name}".encode())
     clients[clientMessage[1]]=sock
-    listen(sock)
+    listen(sock,name[:-1])
     del clients[name]
 
 
-def listen(sock):
+def listen(sock,user):
     global clients
     while True:
-        clientResponse = sock.recv(16).decode("utf-8")
-        if not clientResponse:
+        clientRequest = sock.recv(16).decode("utf-8")
+        if not clientRequest:
             return
-        while clientResponse[-1] != "\n" :
-            clientResponse += sock.recv(16).decode("utf-8")
-        if not clientResponse:
+        while clientRequest[-1] != "\n" :
+            clientRequest += sock.recv(16).decode("utf-8")
+        if not clientRequest:
             return
 
-        print("clientResponse",clientResponse)
-        responseHead = clientResponse.split()[0] #split on white space removes "\n"
+        print("clientRequest",clientRequest)
+        responseHead = clientRequest.split()[0] #split on white space removes "\n"
         if responseHead == "WHO":
             sendWho(sock)
-        elif responseHead == "":
-            pass
+        elif responseHead == "SEND":
+            if sendMsg(clientRequest,user):
+                pass #send OK
+            else:
+                pass #bad rqst body
+        else:
+            pass #send bad header
+
+def sendMsg(clientRequest,sender):
+    global clients
+    clientRequest = clientRequest.split(' ',2)  
+    if len(clientRequest)!=3:
+        return False
+    receiverName = clientRequest[1]
+    if not (receiverName+'\n' in clients):
+        return False
+
+    msg = f"DELIVERY {sender} {clientRequest[2]}"
+    sock = clients[receiverName+'\n']
+    sock.sendall(msg.encode())
+    
+
 
 def sendWho(sock):
     global clients
