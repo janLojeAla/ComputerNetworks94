@@ -1,6 +1,4 @@
 
+We're Done!! (I think)
 
-1. send UNKNOWN\n if there the user isn't logged in
-
-2. Support at least 64 simultaneous clients. 
-  (I'm not sure why that would be a problem, but we can check try to test it)
+2. Support at least 64 simultaneous clients.  <- still not sure what this means

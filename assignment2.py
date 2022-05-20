@@ -52,26 +52,26 @@ def listen(sock,user):
         if responseHead == "WHO\n":
             sendWho(sock)
         elif responseHead == "SEND":
-            if sendMsg(clientRequest,user):
-                sock.sendall("SEND-OK\n".encode())
-            else:
-                sock.sendall("BAD-RQST-BODY\n".encode())
+            sendMsg(clientRequest,user,sock)
         else:
             sock.sendall("BAD-RQST-HDR\n".encode())
 
-def sendMsg(clientRequest,sender):
+def sendMsg(clientRequest,sender,senderSock):
     global clients
     clientRequest = clientRequest.split(' ',2)  
     if len(clientRequest)!=3:
-        return False
+        senderSock.sendall("BAD-RQST-BODY\n".encode())
+        return
+    
     receiverName = clientRequest[1]
     if not (receiverName in clients):
-        return False
+        senderSock.sendall("UNKNOWN\n".encode())
+        return
 
     msg = f"DELIVERY {sender} {clientRequest[2]}"
-    sock = clients[receiverName]
-    sock.sendall(msg.encode())
-    return True
+    receiverSock = clients[receiverName]
+    receiverSock.sendall(msg.encode())
+    senderSock.sendall("SEND-OK\n".encode())
     
 
 
