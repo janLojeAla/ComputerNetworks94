@@ -6,10 +6,11 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.bind(("localhost", 5378))  #socket.gethostname()
 sock.listen()
 
+global clients
 clients={}
 
 def handshake(sock):
-    global clients
+
     clientMessage = sock.recv(16).decode("utf-8")
     while clientMessage[-1] != "\n" :
         clientMessage += sock.recv(16).decode("utf-8")
@@ -25,7 +26,7 @@ def handshake(sock):
         sock.sendall("BAD-RQST-BODY\n".encode())
         return
     
-    name = clientMessage[1][:-1]
+    name = clientMessage[1][:-1]   #remove \n
     if name in clients:
         sock.sendall("IN-USE\n".encode())
         return
@@ -37,7 +38,7 @@ def handshake(sock):
 
 
 def listen(sock,user):
-    global clients
+
     while True:
         clientRequest = sock.recv(16).decode("utf-8")
         if not clientRequest:
@@ -57,7 +58,7 @@ def listen(sock,user):
             sock.sendall("BAD-RQST-HDR\n".encode())
 
 def sendMsg(clientRequest,sender,senderSock):
-    global clients
+
     clientRequest = clientRequest.split(' ',2)  
     if len(clientRequest)!=3:
         senderSock.sendall("BAD-RQST-BODY\n".encode())
@@ -76,7 +77,7 @@ def sendMsg(clientRequest,sender,senderSock):
 
 
 def sendWho(sock):
-    global clients
+
     msg=""
     for name in clients:
         msg += name+","
@@ -90,6 +91,7 @@ while True:
     (tempsock, address) = sock.accept()
     if len(clients)>=64:
         tempsock.sendall("BUSY\n".encode())
+        tempsock.shutdown(SHUT_RDWR)
         tempsock.close()
     clientThread = threading.Thread(target=handshake, args=(tempsock,), daemon=True)
     clientThread.start()

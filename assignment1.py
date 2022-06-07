@@ -45,7 +45,8 @@ def sendMessage(command, sock):
 def listen(sock):
     while True:
         serverResponse = sock.recv(16).decode("utf-8")
-
+        if not serverResponse:
+            return
         while serverResponse[-1] != "\n" :
             serverResponse += sock.recv(16).decode("utf-8")
 
