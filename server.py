@@ -3,7 +3,8 @@ import threading
 import re
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-sock.bind(("localhost", 5378))  #socket.gethostname()
+PORTNUMBER = 5379 #todo custom
+sock.bind(("0.0.0.0", 5379))
 sock.listen()
 
 global clients
@@ -35,7 +36,6 @@ def handshake(sock):
     clients[name]=sock
     listen(sock,name)
     del clients[name]
-
 
 def listen(sock,user):
 
@@ -74,8 +74,6 @@ def sendMsg(clientRequest,sender,senderSock):
     receiverSock.sendall(msg.encode())
     senderSock.sendall("SEND-OK\n".encode())
     
-
-
 def sendWho(sock):
 
     msg=""
@@ -84,14 +82,27 @@ def sendWho(sock):
     msg = msg[:-1]          #remove last comma
     sock.sendall(f"WHO-OK {msg}\n".encode())
 
-
+def get_ip():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.settimeout(0)
+    try:
+        # doesn't even have to be reachable
+        s.connect(('80.80.80.80', 1))
+        IP = s.getsockname()[0]
+    except Exception:
+        IP = '127.0.0.1'
+    finally:
+        s.close()
+    return IP
 
 print("server started\n")
+print(f"ip:{get_ip()}\nport:{PORTNUMBER}")
+
 while True:
     (tempsock, address) = sock.accept()
     if len(clients)>=64:
         tempsock.sendall("BUSY\n".encode())
-        tempsock.shutdown(SHUT_RDWR)
+        tempsock.shutdown(socket.SHUT_RDWR)
         tempsock.close()
     clientThread = threading.Thread(target=handshake, args=(tempsock,), daemon=True)
     clientThread.start()

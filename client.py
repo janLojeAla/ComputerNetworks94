@@ -1,13 +1,13 @@
 import socket
 import threading
 
-def handShake(username):
+def handShake(username, ip, port):
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    host_port = ("143.47.184.219", 5378)
+    host_port = (ip, port)
     sock.connect(host_port)
 
-    message = "HELLO-FROM {0}\n".format(username)
+    message = f"HELLO-FROM {username}\n"
     string_bytes = message.encode("utf-8")
     sock.sendall(string_bytes)
     serverResponse = sock.recv(4096).decode(
@@ -71,11 +71,14 @@ def listen(sock):
 
 
 def main():
+    ipaddr = input("Server ip:")
+    port = int(input("port:"))
     username = input("Name:")
-    sock = handShake(username)
+    
+    sock = handShake(username,ipaddr,port)
     while not sock:
         name = input("Other name:")
-        sock = handShake(name)
+        sock = handShake(name,ipaddr,port)
 
     listenThread = threading.Thread(target=listen, args=(sock,), daemon=True)  # daemon makes it stop when main stops
     listenThread.start()

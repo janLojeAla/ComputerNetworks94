@@ -1,4 +1,0 @@
-
-We're Done!! (I think)
-
-2. Support at least 64 simultaneous clients.  <- still not sure what this means
