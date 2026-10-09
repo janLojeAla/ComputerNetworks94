@@ -1,6 +1,7 @@
 import socket
 import threading
 
+
 def handShake(username, ip, port):
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -12,7 +13,7 @@ def handShake(username, ip, port):
     sock.sendall(string_bytes)
     serverResponse = sock.recv(4096).decode(
         'utf-8')
-    if serverResponse == "HELLO {0}\n".format(username):
+    if serverResponse == f"HELLO {username}\n":
         print("Login successful")
         return sock
     else:
